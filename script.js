@@ -15,6 +15,10 @@
   console.log(`Player 2: ${player2.piece}`);
   console.log(`First turn: ${currentTurn}`);
 
+  const displayController = DisplayController(board);
+
+  displayController.createBoard();
+
   while (!gameOver) {
     console.log(`Current board: 
     ${board[0]} | ${board[1]} | ${board[2]}
@@ -82,6 +86,23 @@
     } else {
       return true;
     }
+  }
+
+  function DisplayController(board) {
+    return {
+      createBoard: function () {
+        console.log("Creating board container");
+        let container = document.getElementById("app");
+        console.log("Container: " + container);
+
+        for (let i = 0; i < 9; i++) {
+          let square = document.createElement("div");
+          square.className = i.toString();
+          square.innerText = i;
+          container.appendChild(square);
+        }
+      },
+    };
   }
 
   function playTurn(position, piece) {

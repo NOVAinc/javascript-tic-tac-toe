@@ -1,0 +1,26 @@
+*,
+::before,
+::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  margin: 3em;
+}
+
+.board {
+  display: grid;
+  justify-self: center;
+  width: 50vmin;
+  height: 50vmin;
+  grid-template: repeat(3, 1fr) / repeat(3, 1fr);
+  margin-right: 1em;
+}
+
+.square {
+  border: 1px solid black;
+}

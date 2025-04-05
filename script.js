@@ -1,95 +1,83 @@
+function Player() {
+  let playerName;
+  let playerPiece;
+
+  function initPlayer(name, piece) {
+    playerName = name;
+    playerPiece = piece;
+  }
+
+  function getName() {
+    return playerName;
+  }
+
+  function getPiece() {
+    return piece;
+  }
+
+  return {
+    initPlayer,
+    getName,
+    getPiece,
+  };
+}
+
 const gameManager = (() => {
-  let board = Board();
-  let gameOver = false;
+  const board = (() => {
+    const board = new Array(9).fill(null);
+
+    function isPlaceFree() {
+      // continue from here
+    }
+
+    return {};
+  })();
+
+  let player1 = Player();
+  let player2 = Player();
+
+  let currentPlayer;
   let winner = null;
-  let currentTurn = Math.random() < 0.5 ? "O" : "X";
-  function updateTurn() {
-    currentTurn == "X" ? (currentTurn = "O") : (currentTurn = "X");
-  }
 
-  function checkWinner() {}
-  return {
-    board,
-    gameOver,
-    currentTurn,
-    winner,
-    checkWinner,
-    updateTurn,
-  };
-})();
-function Board() {
-  const board = new Array(9).fill(null);
+  function startGame() {
+    // refactor to use form fields
+    player1.initPlayer("Lucas", "X");
+    player2.initPlayer("Life", "O");
 
-  function isSlotAvailable(index) {
-    return board[index] == null ? true : false;
-  }
-  return {
-    board,
-    isSlotAvailable,
-  };
-}
-const displayController = (() => {
-  function createBoard() {
-    /* Create an empty board */
-    let board = document.createElement("div");
-    board.className = "board";
+    // refactor to be random
+    currentPlayer = player1;
 
-    for (let i = 0; i < 9; i++) {
-      let square = document.createElement("div");
-      square.className = "square";
-      square.id = i;
-      square.addEventListener("click", () => {
-        populateSquare(square);
-      });
+    while (!isGameOver()) {
+      let position = prompt(
+        `Where would you like to make your move, ${currentPlayer.getName}?`
+      );
 
-      board.appendChild(square);
-    }
-
-    document.body.appendChild(board);
-  }
-
-  function createDashboard() {
-    let turnIndicator = document.createElement("h2");
-    turnIndicator.id = "turn-indicator";
-    turnIndicator.innerText = `Current turn: ${gameManager.currentTurn}`;
-
-    document.body.appendChild(turnIndicator);
-  }
-
-  function populateSquare(square) {
-    if (gameManager.gameOver) {
-      console.log("Game is over");
-      return false;
-    } else if (!gameManager.board.isSlotAvailable([square.id])) {
-      console.log("Square is taken");
-      return false;
-    } else {
-      if (gameManager.currentTurn === "X") {
-        gameManager.board[square.id] = "X";
-        square.innerText = "X";
-        gameManager.updateTurn();
-        console.log("Played X");
-      } else {
-        gameManager.board[square.id] = "O";
-        square.innerText = "O";
-        gameManager.updateTurn();
-        console.log("Played O");
-      }
+      currentPlayer == player1
+        ? attemptMove(player1, position)
+        : attemptMove(player2, position);
     }
   }
 
+  function isGameOver() {}
+
+  function setWinner() {}
+
+  function attemptMove() {}
+
+  function getCurrentPlayer() {
+    return currentPlayer == player1 ? player1 : player2;
+  }
+
+  function setCurrentPlayer() {}
+
   return {
-    createBoard,
-    createDashboard,
-    populateSquare,
+    startGame,
+    isGameOver,
+    setWinner,
+    attemptMove,
+    getCurrentPlayer,
+    setCurrentPlayer,
   };
 })();
 
-displayController.createBoard();
-displayController.createDashboard();
-
-function Player(piece) {
-  return {
-    piece,
-  };
-}
+gameManager.startGame();

@@ -27,54 +27,57 @@ function Player() {
   };
 }
 
+const board = (() => {
+  const board = new Array(9).fill(null);
+
+  function isSpotEmpty(spot) {
+    return board[spot] == null ? true : false;
+  }
+
+  function placePiece(piece, position) {
+    board[position] = piece;
+    console.log(board[0] + board[1] + board[2]);
+    console.log(board[3] + board[4] + board[5]);
+    console.log(board[6] + board[7] + board[8]);
+  }
+
+  function checkWinner() {
+    const winningPositions = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6],
+    ];
+
+    for (winningPosition of winningPositions) {
+      if (
+        board[winningPosition[0]] != null &&
+        board[winningPosition[0]] == board[winningPosition[1]] &&
+        board[winningPosition[1]] == board[winningPosition[2]]
+      ) {
+        return winningPosition[0];
+      }
+    }
+
+    if (board.includes(null)) {
+      return null;
+    } else {
+      return "tie";
+    }
+  }
+
+  return {
+    isSpotEmpty,
+    placePiece,
+    checkWinner,
+  };
+})();
+
 const gameManager = (() => {
-  const board = (() => {
-    const board = new Array(9).fill(null);
-
-    function isSpotEmpty(spot) {
-      return board[spot] == null ? true : false;
-    }
-
-    function placePiece(piece, position) {
-      board[position] = piece;
-    }
-
-    function checkWinner() {
-      const winningPositions = [
-        [0, 1, 2],
-        [3, 4, 5],
-        [6, 7, 8],
-        [0, 3, 6],
-        [1, 4, 7],
-        [2, 5, 8],
-        [0, 4, 8],
-        [2, 4, 6],
-      ];
-
-      for (winningPosition of winningPositions) {
-        if (
-          board[winningPosition[0]] != null &&
-          board[winningPosition[0]] == board[winningPosition[1]] &&
-          board[winningPosition[1]] == board[winningPosition[2]]
-        ) {
-          return winningPosition[0];
-        }
-      }
-
-      if (board.includes(null)) {
-        return null;
-      } else {
-        return "tie";
-      }
-    }
-
-    return {
-      isSpotEmpty,
-      placePiece,
-      checkWinner,
-    };
-  })();
-
   let player1 = Player();
   let player2 = Player();
 
@@ -125,5 +128,29 @@ const gameManager = (() => {
     getCurrentPlayer,
   };
 })();
+
+const displayManager = (() => {
+  function createBoard() {
+    let grid = document.createElement("div");
+    grid.className = "board";
+
+    for (let i = 0; i < 3; i++) {
+      for (let j = 0; j < 3; j++) {
+        let square = document.createElement("div");
+        square.className = "square";
+        square.id = i * 3 + j;
+        grid.appendChild(square);
+      }
+    }
+
+    document.body.appendChild(grid);
+  }
+
+  return {
+    createBoard,
+  };
+})();
+
+displayManager.createBoard();
 
 gameManager.startGame();

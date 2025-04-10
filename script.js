@@ -92,40 +92,54 @@ const gameManager = (() => {
 
     currentPlayer = Math.random() > 0.5 ? player1 : player2;
 
-    while (!isGameOver) {
-      let piece = currentPlayer.getPiece();
-      let position = currentPlayer.getPosition();
+    // while (!isGameOver) {
+    //   let piece = currentPlayer.getPiece();
+    //   let position = currentPlayer.getPosition();
 
-      if (!board.isSpotEmpty(position)) {
-        alert("That spot is not empty! Choose a different one");
-      } else {
-        board.placePiece(piece, position);
+    //   if (!board.isSpotEmpty(position)) {
+    //     alert("That spot is not empty! Choose a different one");
+    //   } else {
+    //     board.placePiece(piece, position);
 
-        let currentWinner = board.checkWinner();
+    //     let currentWinner = board.checkWinner();
 
-        if (currentWinner == null) {
-          console.log("No winner yet");
-          currentPlayer = currentPlayer == player1 ? player2 : player1;
-        } else if (currentWinner == "tie") {
-          console.log("Tie!");
-          winner = "Tie";
-          isGameOver = true;
-        } else {
-          console.log("We have a winner");
-          winner = currentWinner;
-          isGameOver = true;
-        }
-      }
-    }
+    //     if (currentWinner == null) {
+    //       console.log("No winner yet");
+    //       currentPlayer = currentPlayer == player1 ? player2 : player1;
+    //     } else if (currentWinner == "tie") {
+    //       console.log("Tie!");
+    //       winner = "Tie";
+    //       isGameOver = true;
+    //     } else {
+    //       console.log("We have a winner");
+    //       winner = currentWinner;
+    //       isGameOver = true;
+    //     }
+    //   }
+    // }
   }
 
   function getCurrentPlayer() {
     return currentPlayer == player1 ? player1 : player2;
   }
 
+  function switchPlayer() {
+    currentPlayer = currentPlayer == player1 ? player2 : player1;
+  }
+
+  function attemptMove(spot) {
+    if (board.isSpotEmpty(spot)) {
+      board.placePiece(currentPlayer.getPiece(), spot);
+      displayManager.populateSquare(spot, currentPlayer.getPiece());
+      switchPlayer();
+    }
+  }
+
   return {
     startGame,
     getCurrentPlayer,
+    switchPlayer,
+    attemptMove,
   };
 })();
 
@@ -137,8 +151,10 @@ const displayManager = (() => {
     for (let i = 0; i < 3; i++) {
       for (let j = 0; j < 3; j++) {
         let square = document.createElement("div");
+        let id = i * 3 + j;
         square.className = "square";
-        square.id = i * 3 + j;
+        square.id = id;
+        square.addEventListener("click", () => gameManager.attemptMove(id));
         grid.appendChild(square);
       }
     }
@@ -146,8 +162,14 @@ const displayManager = (() => {
     document.body.appendChild(grid);
   }
 
+  function populateSquare(id, piece) {
+    let square = document.getElementById(id);
+    square.innerText = piece;
+  }
+
   return {
     createBoard,
+    populateSquare,
   };
 })();
 

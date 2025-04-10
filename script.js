@@ -12,13 +12,18 @@ function Player() {
   }
 
   function getPiece() {
-    return piece;
+    return playerPiece;
+  }
+
+  function getPosition() {
+    return prompt(`Where would you like to place your piece, ${playerName}?`);
   }
 
   return {
     initPlayer,
     getName,
     getPiece,
+    getPosition,
   };
 }
 
@@ -26,11 +31,48 @@ const gameManager = (() => {
   const board = (() => {
     const board = new Array(9).fill(null);
 
-    function isPlaceFree() {
-      // continue from here
+    function isSpotEmpty(spot) {
+      return board[spot] == null ? true : false;
     }
 
-    return {};
+    function placePiece(piece, position) {
+      board[position] = piece;
+    }
+
+    function checkWinner() {
+      const winningPositions = [
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8],
+        [0, 3, 6],
+        [1, 4, 7],
+        [2, 5, 8],
+        [0, 4, 8],
+        [2, 4, 6],
+      ];
+
+      for (winningPosition of winningPositions) {
+        if (
+          board[winningPosition[0]] != null &&
+          board[winningPosition[0]] == board[winningPosition[1]] &&
+          board[winningPosition[1]] == board[winningPosition[2]]
+        ) {
+          return winningPosition[0];
+        }
+      }
+
+      if (board.includes(null)) {
+        return null;
+      } else {
+        return "tie";
+      }
+    }
+
+    return {
+      isSpotEmpty,
+      placePiece,
+      checkWinner,
+    };
   })();
 
   let player1 = Player();
@@ -38,45 +80,49 @@ const gameManager = (() => {
 
   let currentPlayer;
   let winner = null;
+  let isGameOver = false;
 
   function startGame() {
     // refactor to use form fields
     player1.initPlayer("Lucas", "X");
     player2.initPlayer("Life", "O");
 
-    // refactor to be random
-    currentPlayer = player1;
+    currentPlayer = Math.random() > 0.5 ? player1 : player2;
 
-    while (!isGameOver()) {
-      let position = prompt(
-        `Where would you like to make your move, ${currentPlayer.getName}?`
-      );
+    while (!isGameOver) {
+      let piece = currentPlayer.getPiece();
+      let position = currentPlayer.getPosition();
 
-      currentPlayer == player1
-        ? attemptMove(player1, position)
-        : attemptMove(player2, position);
+      if (!board.isSpotEmpty(position)) {
+        alert("That spot is not empty! Choose a different one");
+      } else {
+        board.placePiece(piece, position);
+
+        let currentWinner = board.checkWinner();
+
+        if (currentWinner == null) {
+          console.log("No winner yet");
+          currentPlayer = currentPlayer == player1 ? player2 : player1;
+        } else if (currentWinner == "tie") {
+          console.log("Tie!");
+          winner = "Tie";
+          isGameOver = true;
+        } else {
+          console.log("We have a winner");
+          winner = currentWinner;
+          isGameOver = true;
+        }
+      }
     }
   }
-
-  function isGameOver() {}
-
-  function setWinner() {}
-
-  function attemptMove() {}
 
   function getCurrentPlayer() {
     return currentPlayer == player1 ? player1 : player2;
   }
 
-  function setCurrentPlayer() {}
-
   return {
     startGame,
-    isGameOver,
-    setWinner,
-    attemptMove,
     getCurrentPlayer,
-    setCurrentPlayer,
   };
 })();
 

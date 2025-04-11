@@ -30,6 +30,10 @@ function Player() {
 const board = (() => {
   const board = new Array(9).fill(null);
 
+  function restart() {
+    board.fill(null);
+  }
+
   function isSpotEmpty(spot) {
     return board[spot] == null ? true : false;
   }
@@ -74,6 +78,7 @@ const board = (() => {
     isSpotEmpty,
     placePiece,
     checkWinner,
+    restart,
   };
 })();
 
@@ -86,41 +91,25 @@ const gameManager = (() => {
   let isGameOver = false;
 
   function startGame() {
-    // refactor to use form fields
-    player1.initPlayer("Lucas", "X");
-    player2.initPlayer("Life", "O");
+    player1.initPlayer(document.getElementById("player1-name").value, "X");
+    player2.initPlayer(document.getElementById("player2-name").value, "O");
 
     currentPlayer = Math.random() > 0.5 ? player1 : player2;
 
-    // while (!isGameOver) {
-    //   let piece = currentPlayer.getPiece();
-    //   let position = currentPlayer.getPosition();
+    displayManager.displayTurn();
+  }
 
-    //   if (!board.isSpotEmpty(position)) {
-    //     alert("That spot is not empty! Choose a different one");
-    //   } else {
-    //     board.placePiece(piece, position);
+  function restartGame() {
+    board.restart();
+    displayManager.clearGrid();
 
-    //     let currentWinner = board.checkWinner();
+    currentPlayer = Math.random() > 0.5 ? player1 : player2;
 
-    //     if (currentWinner == null) {
-    //       console.log("No winner yet");
-    //       currentPlayer = currentPlayer == player1 ? player2 : player1;
-    //     } else if (currentWinner == "tie") {
-    //       console.log("Tie!");
-    //       winner = "Tie";
-    //       isGameOver = true;
-    //     } else {
-    //       console.log("We have a winner");
-    //       winner = currentWinner;
-    //       isGameOver = true;
-    //     }
-    //   }
-    // }
+    displayManager.displayTurn();
   }
 
   function getCurrentPlayer() {
-    return currentPlayer == player1 ? player1 : player2;
+    return currentPlayer;
   }
 
   function switchPlayer() {
@@ -131,7 +120,14 @@ const gameManager = (() => {
     if (board.isSpotEmpty(spot)) {
       board.placePiece(currentPlayer.getPiece(), spot);
       displayManager.populateSquare(spot, currentPlayer.getPiece());
-      switchPlayer();
+      if (board.checkWinner() == null) {
+        displayManager.displayTurn();
+        switchPlayer();
+      } else if (board.checkWinner() == "tie") {
+        displayManager.displayTie();
+      } else {
+        displayManager.displayWinner(currentPlayer.getName());
+      }
     }
   }
 
@@ -140,6 +136,7 @@ const gameManager = (() => {
     getCurrentPlayer,
     switchPlayer,
     attemptMove,
+    restartGame,
   };
 })();
 
@@ -162,17 +159,79 @@ const displayManager = (() => {
     document.body.appendChild(grid);
   }
 
+  function displayTurn() {
+    document.getElementById("status").innerText = `Current turn: ${gameManager
+      .getCurrentPlayer()
+      .getName()}`;
+  }
+
+  function displayTie() {
+    document.getElementById("status").innerText = "Tie!";
+  }
+
+  function displayWinner(winner) {
+    document.getElementById("status").innerText = `Winner: ${winner}!`;
+  }
+
   function populateSquare(id, piece) {
     let square = document.getElementById(id);
     square.innerText = piece;
   }
 
+  function clearGrid() {
+    const squares = document.getElementsByClassName("square");
+    for (square of squares) {
+      square.innerText = "";
+    }
+  }
+
+  function showDashboard() {
+    const dashboard = document.createElement("div");
+    dashboard.innerHTML = `<h2 id="status">Game on</h2>
+<form id="form">
+  <li>
+    <label for="player1-name">Player X</label>
+    <input type="text" id="player1-name">
+  </li>
+  <li>
+  <label for="player2-name">Player O</label>
+  <input type="text" id="player2-name">
+  </li>
+  <button id="start-game-button">Start Game</button>
+  <button id="restart-game-button">Restart Game</button>
+</form>
+    `;
+    dashboard.className = "dashboard";
+
+    document.body.appendChild(dashboard);
+
+    document.getElementById("form").addEventListener("submit", (event) => {
+      event.preventDefault();
+    });
+
+    document
+      .getElementById("start-game-button")
+      .addEventListener("click", () => {
+        gameManager.startGame();
+      });
+
+    document
+      .getElementById("restart-game-button")
+      .addEventListener("click", () => {
+        gameManager.restartGame();
+      });
+  }
+
   return {
     createBoard,
     populateSquare,
+    showDashboard,
+    displayTurn,
+    displayTie,
+    displayWinner,
+    clearGrid,
   };
 })();
 
 displayManager.createBoard();
-
-gameManager.startGame();
+displayManager.showDashboard();

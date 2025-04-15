@@ -8,6 +8,7 @@
 
 body {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   margin: 3em;
 }
@@ -23,4 +24,8 @@ body {
 
 .square {
   border: 1px solid black;
+}
+
+.dashboard {
+  display: block;
 }
